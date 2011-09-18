@@ -69,7 +69,7 @@
 
   function ring() {
       $('#bell').remove();
-      $('body').append('<embed id="bell" src="media/TaDa.ogg" autostart="true" hidden="true" loop="false">');
+      $('body').append('<embed id="bell" src="http://pomodoro.iletken.com.tr/media/TaDa.ogg" autostart="true" hidden="true" loop="false">');
   }
 
   function dialog() {
