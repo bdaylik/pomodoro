@@ -1,0 +1,153 @@
+<html>
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+  <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/reset/reset-min.css">
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="js/jquery.countdown.pack.js"></script>
+  <style>
+    #main {
+      width : 1230px;
+      margin : auto;
+    }
+    .content {
+      width : 400px;
+      height : 300px;
+      float : left;
+      margin : 5px;
+    }
+    .timer {
+      text-align : right;
+      font-size : 100px;
+      font-family : Arial;
+      height: 100px;
+    }
+    .progress {
+      width : 380px;
+      height : 50px;
+      margin : auto;
+      margin-top : 10px;
+      margin-bottom : 10px;
+    }
+    .name {
+      text-align : center;
+      font-size : 100px;
+      font-family : Arial;
+      font-weight : bold;
+      border-bottom : 2px solid black;
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+  </div>
+  <div id="dialog-confirm">
+  </div>
+<script type="text/javascript">
+  var begin, length;
+
+  function update_progress_func(username) {
+      return function (periods) {
+        var remaining = periods[5] * 60 + periods[6];
+        var perc = 100 - (remaining / length) * 100;
+        $("#" + username + "_content .progress").progressbar("value", perc);
+      }
+  }
+
+  function reset(username) {
+      $("#" + username + "_content .timer").countdown('destroy');
+      $("#" + username + "_content .progress").progressbar("value", 0);
+      $("#" + username + "_content .progress").progressbar("disable");
+  }
+
+  function server_time() {
+      var time = null;
+      $.ajax({
+          url: 'time.php',
+          async: false,
+          dataType: 'text',
+          success: function (text) {
+              time = new Date(text);
+          },
+          error: function (http, message, exc) {
+              time = new Date();
+          }
+      });
+      return time;
+  }
+
+  function pomodoro_timer(username, until) {
+      reset();
+      $("#" + username + "_content .progress").progressbar("enable");
+      $("#" + username + "_content").css('background-color', 'F20000');
+      var until = new Date((begin + length) * 1000);
+      $("#" + username + "_content .timer").countdown({
+          until: until,
+          format: 'MS',
+          compact: true,
+          serverSync: server_time,
+          onTick: update_progress_func(username)
+      });
+  }
+
+  function idle_timer(username, since) {
+      reset();
+      $("#" + username + "_content").css('background-color', 'C0C0C0');
+      $("#" + username + "_content .timer").html("IDLE");
+  }
+
+  function break_timer(username, begin, length) {
+      reset();
+      $("#" + username + "_content .progress").progressbar("enable");
+      $("#" + username + "_content").css('background-color', '336600');
+      var until = new Date((begin + length) * 1000);
+      $("#" + username + "_content .timer").countdown({
+          until: until,
+          format: 'MS',
+          compact: true,
+          serverSync: server_time,
+          onTick: update_progress_func(username)
+      });
+  }
+
+  function refresh(datas) {
+      var error = datas.error;
+      if (!error) {
+          $("#main").html("");
+          for(var i = 0; i<datas.length; i++)
+          {
+            var data = datas[i];
+            $("#main").append('<div id="' + data.username + '_content" class="content"><div class="name">' + data.username + '</div><div class="timer"></div><div class="progress"></div></div>');
+            $("#" + data.username + "_content .progress").progressbar();
+            var status = data.status;
+            switch (status) {
+            case "IDLE":
+                idle_timer(data.username, new Date(data.begin * 1000));
+                break;
+            case "BREAK":
+                begin = data.begin;
+                length = data.length;
+                break_timer(data.username, data.begin, data.length);
+                break;
+            case "POMODORO":
+                begin = data.begin;
+                length = data.length;
+                pomodoro_timer(data.username, data.begin, data.length);
+                break;
+            }
+          }
+      }
+  }
+
+  function status_all() {
+      $.getJSON('api.php', {
+          c: "status_all"
+      }, refresh);
+  }
+
+  status_all();
+  window.setInterval(status_all, 1000);
+</script>
+</body>
+</html>
