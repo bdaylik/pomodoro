@@ -35,7 +35,7 @@ class RecordDao extends Dao
       $stmt->execute();
       $stmt->close();
     }
-    return $user;
+    return $record;
   }
   public function delete($username, $date)
   {
