@@ -64,9 +64,18 @@ class PomodoroService
       $user = $this->user_dao->add($user);
     }
 
-    if($user->status === "BREAK")
+    if($user->status === "S_BREAK")
     {
       $diff = time() - $user->begin - $SHORT_BREAK_LENGTH;
+      if($diff >= 0)
+      {
+        $status = $this->stop_pomodoro($username);
+      }
+    }
+
+    if($user->status === "L_BREAK")
+    {
+      $diff = time() - $user->begin - $LONG_BREAK_LENGTH;
       if($diff >= 0)
       {
         $status = $this->stop_pomodoro($username);
@@ -84,8 +93,11 @@ class PomodoroService
         case "POMODORO":
           $status->length = $POMODORO_LENGTH;
           break;
-        case "BREAK":
+        case "S_BREAK":
           $status->length = $SHORT_BREAK_LENGTH;
+          break;
+        case "L_BREAK":
+          $status->length = $LONG_BREAK_LENGTH;
           break;
       }
       $status->error = false;
@@ -99,7 +111,7 @@ class PomodoroService
     $user = $this->user_dao->get($username);
     if(!is_null($user))
     {
-      if($user->status === "POMODORO" || $user->status === "BREAK")
+      if($user->status === "POMODORO" || $user->status === "S_BREAK" || $user->status === "L_BREAK")
       {
          if($user->status === "POMODORO")
          {
@@ -132,9 +144,17 @@ class PomodoroService
          $diff = time() - $user->begin;
          if($diff >= $POMODORO_LENGTH)
          {
-           $this->success($user->username);
+           $success_count = $this->success($user->username);
 
-           $user->status = "BREAK";
+           if($success_count % 4 === 0)
+           {
+             $user->status = "L_BREAK";
+           }
+           else
+           {
+             $user->status = "S_BREAK";
+           }
+
            $user->begin = time();
            $this->user_dao->update($user);
            $status = $this->get_status($user->username);
@@ -197,6 +217,7 @@ class PomodoroService
     $record = $this->get_todays_record($username);
     $record->success += 1;
     $this->record_dao->update($record);
+    return $record->success;
   }
 
   function fail ($username)
@@ -204,5 +225,6 @@ class PomodoroService
     $record = $this->get_todays_record($username);
     $record->fail += 1;
     $this->record_dao->update($record);
+    return $record->fail;
   }
 }

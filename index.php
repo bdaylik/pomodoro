@@ -188,7 +188,8 @@
           case "IDLE":
               idle_timer(new Date(data.begin * 1000));
               break;
-          case "BREAK":
+          case "S_BREAK":
+          case "L_BREAK":
               begin = data.begin;
               length = data.length;
               break_timer(data.begin, data.length);
