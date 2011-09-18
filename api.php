@@ -2,7 +2,7 @@
 
 require_once dirname(__FILE__)."/service/pomodoro.php";
 
-$username = $_GET['u'];
+$username = isset($_GET['u']) ? $_GET['u'] : null;
 
 $command = $_GET['c'];
 

@@ -10,7 +10,7 @@ class UserDao extends Dao
   {
     $db = $this->get_connection();
 
-    $result = $db->query("CREATE TABLE user(username VARCHAR(255) PRIMARY KEY, status VARCHAR(10), begin INTEGER)");
+    $result = $db->query("CREATE TABLE user(username VARCHAR(255) PRIMARY KEY, status VARCHAR(10), begin INTEGER) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
     echo $result;
   }
   public function add($user)
