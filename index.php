@@ -1,4 +1,12 @@
-<html>
+<?php
+
+$username = isset($_GET['u']) ? $_GET['u'] : null;
+
+if(is_null($username) || $username === "")
+{
+  die ('<html><head></head><body>Please enter your user name!!</body></html>');
+}
+?><html>
 <head>
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
   <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/reset/reset-min.css">
@@ -40,7 +48,7 @@
 <body>
   <div id="main">
     <div id="content">
-      <div id="name"><?php echo $_GET['u'];?></div>
+      <div id="name"><?php echo $username;?></div>
       <div id="timer"></div>
       <div id="progress"></div>
       <div id="buttons">
