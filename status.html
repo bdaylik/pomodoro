@@ -45,9 +45,7 @@
   <div id="dialog-confirm">
   </div>
 <script type="text/javascript">
-  var begin, length;
-
-  function update_progress_func(username) {
+  function update_progress_func(username, length) {
       return function (periods) {
         var remaining = periods[5] * 60 + periods[6];
         var perc = 100 - (remaining / length) * 100;
@@ -57,8 +55,8 @@
 
   function reset(username) {
       $("#" + username + "_content .timer").countdown('destroy');
-      $("#" + username + "_content .progress").progressbar("value", 0);
-      $("#" + username + "_content .progress").progressbar("disable");
+      //$("#" + username + "_content .progress").progressbar("value", 0);
+      //$("#" + username + "_content .progress").progressbar("disable");
   }
 
   function server_time() {
@@ -77,7 +75,7 @@
       return time;
   }
 
-  function pomodoro_timer(username, until) {
+  function pomodoro_timer(username, until, length) {
       reset();
       $("#" + username + "_content .progress").progressbar("enable");
       $("#" + username + "_content").css('background-color', 'F20000');
@@ -87,7 +85,7 @@
           format: 'MS',
           compact: true,
           serverSync: server_time,
-          onTick: update_progress_func(username)
+          onTick: update_progress_func(username, length)
       });
   }
 
@@ -107,7 +105,7 @@
           format: 'MS',
           compact: true,
           serverSync: server_time,
-          onTick: update_progress_func(username)
+          onTick: update_progress_func(username, length)
       });
   }
 
@@ -128,12 +126,10 @@
             case "S_BREAK":
             case "L_BREAK":
                 begin = data.begin;
-                length = data.length;
                 break_timer(data.username, data.begin, data.length);
                 break;
             case "POMODORO":
                 begin = data.begin;
-                length = data.length;
                 pomodoro_timer(data.username, data.begin, data.length);
                 break;
             }
