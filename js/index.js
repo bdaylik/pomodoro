@@ -1,10 +1,10 @@
-var begin, length, username = "<?php echo $_GET['u'];?>";
-
-function update_progress(periods) {
+function update_progress_func(username, length) {
     "use strict";
-    var remaining = periods[5] * 60 + periods[6],
-        perc = 100 - (remaining / length) * 100;
-    $("#progress").progressbar("value", perc);
+    return function (periods) {
+        var remaining = periods[5] * 60 + periods[6],
+            perc = 100 - (remaining / length) * 100;
+        $("#progress").progressbar("value", perc);
+    };
 }
 
 function reset() {
@@ -37,7 +37,7 @@ function server_time() {
     return time;
 }
 
-function pomodoro_timer(begin) {
+function pomodoro_timer(begin, length) {
     "use strict";
     reset();
     $("#progress").progressbar("enable");
@@ -51,7 +51,7 @@ function pomodoro_timer(begin) {
         format: 'MS',
         compact: true,
         serverSync: server_time,
-        onTick: update_progress,
+        onTick: update_progress_func(username, length),
         onExpiry: pomodoro_finished
     });
 }
@@ -78,7 +78,7 @@ function break_timer(begin, length) {
         format: 'MS',
         compact: true,
         serverSync: server_time,
-        onTick: update_progress,
+        onTick: update_progress_func(username, length),
         onExpiry: break_finished
     });
 }
@@ -94,13 +94,9 @@ function refresh(data) {
             break;
         case "S_BREAK":
         case "L_BREAK":
-            begin = data.begin;
-            length = data.length;
             break_timer(data.begin, data.length);
             break;
         case "POMODORO":
-            begin = data.begin;
-            length = data.length;
             pomodoro_timer(data.begin, data.length);
             break;
         }

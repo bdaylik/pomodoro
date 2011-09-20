@@ -18,6 +18,7 @@ if(is_null($username) || $username === "")
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <script type="text/javascript" src="js/jquery.countdown.pack.js"></script>
   <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
+  <script type="text/javascript">var username = "<?php echo $username;?>";</script>
   <style type="text/css">
     #content {
       width : 400px;
