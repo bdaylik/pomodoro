@@ -14,6 +14,7 @@ if(is_null($username) || $username === "")
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <script type="text/javascript" src="js/jquery.countdown.pack.js"></script>
+  <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
   <style>
     #content {
       width : 400px;
@@ -57,8 +58,8 @@ if(is_null($username) || $username === "")
       </div>
     </div>
   </div>
-  <div id="dialog-confirm">
-  </div>
+  <div id="dialog-confirm"></div>
+  <div id="player"></div>
 <script type="text/javascript">
   var begin, length, username = "<?php echo $_GET['u'];?>";
 
@@ -76,8 +77,7 @@ if(is_null($username) || $username === "")
   }
 
   function ring() {
-      $('#bell').remove();
-      $('body').append('<embed id="bell" src="http://pomodoro.iletken.com.tr/media/TaDa.ogg" autostart="true" hidden="true" loop="false">');
+        $("#player").jPlayer("play");
   }
 
   function dialog() {
@@ -242,7 +242,18 @@ if(is_null($username) || $username === "")
   $("#progress").progressbar();
   $("#start").button();
   $("#stop").button();
-  status();
+
+  $("#player").jPlayer({
+    ready: function() {
+      $(this).jPlayer("setMedia", {
+        mp3: "http://pomodoro.iletken.com.tr/media/TaDa.mp3",
+        oga: "http://pomodoro.iletken.com.tr/media/TaDa.ogg"
+      });
+      status();
+    },
+    supplied: "m4v, oga",
+    size : {width: "0px", height: "0px"}
+  });
 </script>
 </body>
 </html>
