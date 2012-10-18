@@ -100,6 +100,7 @@ function refresh(data) {
             pomodoro_timer(data.begin, data.length);
             break;
         }
+        $('#name span').html(data.pomodoro_today);
     }
 }
 

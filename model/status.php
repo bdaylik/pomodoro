@@ -8,4 +8,5 @@ class Status
   public $length;
   public $error;
   public $error_message;
+  public $pomodoro_today;
 }

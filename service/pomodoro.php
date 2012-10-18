@@ -88,6 +88,7 @@ class PomodoroService
       $status->username = $user->username;
       $status->status = $user->status;
       $status->begin = $user->begin;
+      $status->pomodoro_today = $this->get_pomodoro_count_for_today($username);
       switch($user->status)
       {
         case "POMODORO":
@@ -103,6 +104,12 @@ class PomodoroService
       $status->error = false;
     }
     return $status;
+  }
+
+  function get_pomodoro_count_for_today ($username)
+  {
+    $record = $this->get_todays_record($username);
+    return $record->success;
   }
 
   function stop_pomodoro ($username)

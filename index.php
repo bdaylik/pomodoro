@@ -33,7 +33,7 @@ if(is_null($username) || $username === "")
     }
     #name {
       text-align : center;
-      font-size : 100px;
+      font-size : 80px;
       font-family : Arial;
       font-weight : bold;
       border-bottom : 2px solid black;
@@ -53,7 +53,7 @@ if(is_null($username) || $username === "")
 <body>
   <div id="main">
     <div id="content">
-      <div id="name"><?php echo $username;?></div>
+      <div id="name"><?php echo $username;?> <span></span></div>
       <div id="timer"></div>
       <div id="progress"></div>
       <div id="buttons">

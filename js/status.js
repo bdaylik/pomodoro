@@ -73,7 +73,7 @@ function refresh(datas) {
         $("#main").html("");
         for (i = 0; i < datas.length; i += 1) {
             data = datas[i];
-            $("#main").append('<div id="' + data.username + '_content" class="content"><div class="name">' + data.username + '</div><div class="timer"></div><div class="progress"></div></div>');
+            $("#main").append('<div id="' + data.username + '_content" class="content"><div class="name">' + data.username + ' <span>' + data.pomodoro_today + '</span></div><div class="timer"></div><div class="progress"></div></div>');
             $("#" + data.username + "_content .progress").progressbar();
             status = data.status;
             switch (status) {
