@@ -2,7 +2,7 @@
 
 class Status
 {
-  public $username;
+  public $user_name;
   public $status;
   public $begin;
   public $length;
