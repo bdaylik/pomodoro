@@ -1,4 +1,4 @@
-function update_progress_func(username, length) {
+function update_progress_func(user_name, length) {
     "use strict";
     return function (periods) {
         var remaining = periods[5] * 60 + periods[6],
@@ -51,7 +51,7 @@ function pomodoro_timer(begin, length) {
         format: 'MS',
         compact: true,
         serverSync: server_time,
-        onTick: update_progress_func(username, length),
+        onTick: update_progress_func(user_name, length),
         onExpiry: pomodoro_finished
     });
 }
@@ -78,7 +78,7 @@ function break_timer(begin, length) {
         format: 'MS',
         compact: true,
         serverSync: server_time,
-        onTick: update_progress_func(username, length),
+        onTick: update_progress_func(user_name, length),
         onExpiry: break_finished
     });
 }
@@ -106,33 +106,65 @@ function refresh(data) {
 
 function status() {
     "use strict";
-    $.getJSON('api.php', {
-        u: username,
-        c: "status"
-    }, refresh);
+    if(user_name.length){
+        $.getJSON('api.php', {
+            u: user_name,
+            c: "status"
+        }, refresh);
+    } else {
+        $.getJSON('api.php', {
+            t: team_name,
+            c: "team_status"
+        }, refresh);
+    }
+    
 }
 
 function start() {
     "use strict";
     $.getJSON('api.php', {
-        u: username,
+        u: user_name,
         c: "start"
+    }, refresh);
+}
+
+function start_team() {
+    "use strict";
+    $.getJSON('api.php', {
+        t: team_name,
+        c: "team_start"
     }, refresh);
 }
 
 function stop() {
     "use strict";
     $.getJSON('api.php', {
-        u: username,
+        u: user_name,
         c: "stop"
+    }, refresh);
+}
+
+function stop_team() {
+    "use strict";
+    $.getJSON('api.php', {
+        t: team_name,
+        c: "team_stop"
     }, refresh);
 }
 
 function give_break() {
     "use strict";
     $.getJSON('api.php', {
-        u: username,
+        u: user_name,
         c: "break"
+    }, refresh);
+}
+
+function give_team_break() {
+    "use strict";
+    $.getJSON('api.php', {
+        t: team_name,
+        c: "team_break"
     }, refresh);
 }
 
@@ -149,13 +181,22 @@ function dialog() {
         close: function () {
             switch (dialog_rv) {
             case "TAKE_A_BREAK":
-                give_break();
+                if(user_name.length)
+                    give_break();
+                else
+                    give_team_break();
                 break;
             case "SKIP_BREAK":
-                start();
+                if(user_name.length)
+                    start();
+                else
+                    start_team();
                 break;
             case "VOID":
-                stop();
+                if(user_name.length)
+                    stop();
+                else
+                    stop_team();
                 break;
             }
         },
@@ -195,8 +236,8 @@ $("#stop").button();
 $("#player").jPlayer({
     ready: function () {
         $(this).jPlayer("setMedia", {
-            mp3: "http://pomodoro.iletken.com.tr/media/TaDa.mp3",
-            oga: "http://pomodoro.iletken.com.tr/media/TaDa.ogg"
+            mp3: "localhost/pomodoro/media/TaDa.mp3",
+            oga: "localhost/pomodoro/media/TaDa.ogg"
         });
         status();
     },

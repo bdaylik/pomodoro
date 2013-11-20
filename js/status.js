@@ -1,15 +1,15 @@
-function update_progress_func(username, length) {
+function update_progress_func(user_name, length) {
     "use strict";
     return function (periods) {
         var remaining = periods[5] * 60 + periods[6],
             perc = 100 - (remaining / length) * 100;
-        $("#" + username + "_content .progress").progressbar("value", perc);
+        $("#" + user_name + "_content .progress").progressbar("value", perc);
     };
 }
 
-function reset(username) {
+function reset(user_name) {
     "use strict";
-    $("#" + username + "_content .timer").countdown('destroy');
+    $("#" + user_name + "_content .timer").countdown('destroy');
 }
 
 function server_time() {
@@ -29,40 +29,40 @@ function server_time() {
     return time;
 }
 
-function pomodoro_timer(username, begin, length) {
+function pomodoro_timer(user_name, begin, length) {
     "use strict";
     reset();
-    $("#" + username + "_content .progress").progressbar("enable");
-    $("#" + username + "_content").css('background-color', '#F20000');
+    $("#" + user_name + "_content .progress").progressbar("enable");
+    $("#" + user_name + "_content").css('background-color', '#F20000');
     var until = new Date((begin + length) * 1000);
-    $("#" + username + "_content .timer").countdown({
+    $("#" + user_name + "_content .timer").countdown({
         until: until,
         format: 'MS',
         compact: true,
         serverSync: server_time,
-        onTick: update_progress_func(username, length)
+        onTick: update_progress_func(user_name, length)
     });
 }
 
-function idle_timer(username) {
+function idle_timer(user_name) {
     "use strict";
     reset();
-    $("#" + username + "_content").css('background-color', '#C0C0C0');
-    $("#" + username + "_content .timer").html("IDLE");
+    $("#" + user_name + "_content").css('background-color', '#C0C0C0');
+    $("#" + user_name + "_content .timer").html("IDLE");
 }
 
-function break_timer(username, begin, length) {
+function break_timer(user_name, begin, length) {
     "use strict";
     reset();
-    $("#" + username + "_content .progress").progressbar("enable");
-    $("#" + username + "_content").css('background-color', '#336600');
+    $("#" + user_name + "_content .progress").progressbar("enable");
+    $("#" + user_name + "_content").css('background-color', '#336600');
     var until = new Date((begin + length) * 1000);
-    $("#" + username + "_content .timer").countdown({
+    $("#" + user_name + "_content .timer").countdown({
         until: until,
         format: 'MS',
         compact: true,
         serverSync: server_time,
-        onTick: update_progress_func(username, length)
+        onTick: update_progress_func(user_name, length)
     });
 }
 
@@ -73,21 +73,21 @@ function refresh(datas) {
         $("#main").html("");
         for (i = 0; i < datas.length; i += 1) {
             data = datas[i];
-            $("#main").append('<div id="' + data.username + '_content" class="content"><div class="name">' + data.username + ' <span>' + data.pomodoro_today + '</span></div><div class="timer"></div><div class="progress"></div></div>');
-            $("#" + data.username + "_content .progress").progressbar();
+            $("#main").append('<div id="' + data.user_name + '_content" class="content"><div class="name">' + data.user_name + ' <span>' + data.pomodoro_today + '</span></div><div class="timer"></div><div class="progress"></div></div>');
+            $("#" + data.user_name + "_content .progress").progressbar();
             status = data.status;
             switch (status) {
             case "IDLE":
-                idle_timer(data.username, new Date(data.begin * 1000));
+                idle_timer(data.user_name, new Date(data.begin * 1000));
                 break;
             case "S_BREAK":
             case "L_BREAK":
                 begin = data.begin;
-                break_timer(data.username, data.begin, data.length);
+                break_timer(data.user_name, data.begin, data.length);
                 break;
             case "POMODORO":
                 begin = data.begin;
-                pomodoro_timer(data.username, data.begin, data.length);
+                pomodoro_timer(data.user_name, data.begin, data.length);
                 break;
             }
         }

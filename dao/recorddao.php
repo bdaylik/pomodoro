@@ -10,16 +10,16 @@ class RecordDao extends Dao
   {
     $db = $this->get_connection();
 
-    $result = $db->query("CREATE TABLE record(username VARCHAR(255), date DATE, success INTEGER, fail INTEGER, PRIMARY KEY (username, date)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
+    $result = $db->query("CREATE TABLE record(user_name VARCHAR(255), date DATE, success INTEGER, fail INTEGER, PRIMARY KEY (user_name, date)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
     echo $result;
   }
   public function add($record)
   {
     $db = $this->get_connection();
-    if($stmt = $db->prepare("INSERT INTO record (username, date, success, fail) VALUES (?, ?, ?, ?) "))
+    if($stmt = $db->prepare("INSERT INTO record (user_name, date, success, fail) VALUES (?, ?, ?, ?) "))
     {
       $date = date( 'Y-m-d', $record->date);
-      $stmt->bind_param('ssii', $record->username, $date, $record->success, $record->fail);
+      $stmt->bind_param('ssii', $record->user_name, $date, $record->success, $record->fail);
       $stmt->execute();
       $stmt->close();
     }
@@ -28,41 +28,41 @@ class RecordDao extends Dao
   public function update($record)
   {
     $db = $this->get_connection();
-    if($stmt = $db->prepare("UPDATE record SET success = ?, fail = ? WHERE username = ? AND date = ?"))
+    if($stmt = $db->prepare("UPDATE record SET success = ?, fail = ? WHERE user_name = ? AND date = ?"))
     {
       $date = date( 'Y-m-d', $record->date);
-      $stmt->bind_param('iiss', $record->success, $record->fail, $record->username, $date);
+      $stmt->bind_param('iiss', $record->success, $record->fail, $record->user_name, $date);
       $stmt->execute();
       $stmt->close();
     }
     return $record;
   }
-  public function delete($username, $date)
+  public function delete($user_name, $date)
   {
     $db = $this->get_connection();
-    if($stmt = $db->prepare("DELETE FROM record WHERE username = ? AND date = ?"))
+    if($stmt = $db->prepare("DELETE FROM record WHERE user_name = ? AND date = ?"))
     {
       $date = date( 'Y-m-d', $date);
-      $stmt->bind_param('ss', $username, $date);
+      $stmt->bind_param('ss', $user_name, $date);
       $stmt->execute();
       $stmt->close();
     }
     return true;
   }
-  public function get($username, $date)
+  public function get($user_name, $date)
   {
     $record = null;
     $db = $this->get_connection();
-    if($stmt = $db->prepare("SELECT username, date, success, fail FROM record WHERE username = ? AND date = ?"))
+    if($stmt = $db->prepare("SELECT user_name, date, success, fail FROM record WHERE user_name = ? AND date = ?"))
     {
       $date = date( 'Y-m-d', $date);
-      $stmt->bind_param('ss', $username, $date);
+      $stmt->bind_param('ss', $user_name, $date);
       $stmt->execute();
-      $stmt->bind_result($username, $date, $success, $fail);
+      $stmt->bind_result($user_name, $date, $success, $fail);
       if($stmt->fetch())
       {
         $record = new Record();
-        $record->username = $username;
+        $record->user_name = $user_name;
         $record->date = strtotime($date);
         $record->success = $success;
         $record->fail = $fail;
@@ -71,21 +71,21 @@ class RecordDao extends Dao
     }
     return $record;
   }
-  public function get_between($username, $from, $to)
+  public function get_between($user_name, $from, $to)
   {
     $records = array();
     $db = $this->get_connection();
-    if($stmt = $db->prepare("SELECT username, date, success, fail FROM record WHERE username = ? AND date >= ? AND date <= ?"))
+    if($stmt = $db->prepare("SELECT user_name, date, success, fail FROM record WHERE user_name = ? AND date >= ? AND date <= ?"))
     {
       $from = date( 'Y-m-d', $from);
       $to = date( 'Y-m-d', $to);
-      $stmt->bind_param('sss', $username, $from, $to);
+      $stmt->bind_param('sss', $user_name, $from, $to);
       $stmt->execute();
-      $stmt->bind_result($username, $date, $success, $fail);
+      $stmt->bind_result($user_name, $date, $success, $fail);
       while($stmt->fetch())
       {
         $record = new Record();
-        $record->username = $username;
+        $record->user_name = $user_name;
         $record->date = strtotime($date);
         $record->success = $success;
         $record->fail = $fail;
@@ -100,3 +100,6 @@ class RecordDao extends Dao
     parent::__destruct();
   }
 }
+
+// $record_dao = new RecordDao();
+// $record_dao->create_table();
