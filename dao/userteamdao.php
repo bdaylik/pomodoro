@@ -3,9 +3,9 @@
 require_once dirname(__FILE__)."/../config.php";
 require_once dirname(__FILE__)."/../model/team.php";
 require_once dirname(__FILE__)."/../model/user.php";
-require_once dirname(__FILE__)."/teamdao.php";
-require_once dirname(__FILE__)."/userdao.php";
 require_once dirname(__FILE__)."/dao.php";
+require_once dirname(__FILE__)."/userdao.php";
+require_once dirname(__FILE__)."/teamdao.php";
 
 class UserTeamDao extends Dao
 {
@@ -80,5 +80,5 @@ class UserTeamDao extends Dao
 
 // $team = new Team();
 // $team->team_name = 'pv';
-// gets all user entries for a team:
+// // gets all user entries for a team:
 // $user_team_dao->get_users_for_team($team);

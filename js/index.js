@@ -181,13 +181,22 @@ function dialog() {
         close: function () {
             switch (dialog_rv) {
             case "TAKE_A_BREAK":
-                give_break();
+                if(user_name.length)
+                    give_break();
+                else
+                    give_team_break();
                 break;
             case "SKIP_BREAK":
-                start();
+                if(user_name.length)
+                    start();
+                else
+                    start_team();
                 break;
             case "VOID":
-                stop();
+                if(user_name.length)
+                    stop();
+                else
+                    stop_team();
                 break;
             }
         },

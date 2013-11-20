@@ -101,5 +101,5 @@ class RecordDao extends Dao
   }
 }
 
-$record_dao = new RecordDao();
-$record_dao->create_table();
+// $record_dao = new RecordDao();
+// $record_dao->create_table();
