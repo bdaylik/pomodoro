@@ -2,7 +2,7 @@
 
 class Record
 {
-  public $user_name;
+  public $username;
   public $date;
   public $success;
   public $fail;

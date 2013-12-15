@@ -2,8 +2,8 @@
 
 require_once dirname(__FILE__)."/service/pomodoro.php";
 
-$user_name = isset($_GET['u']) ? $_GET['u'] : null; // user_name
-$team_name = isset($_GET['t']) ? $_GET['t'] : null; // team_name
+$username = isset($_GET['u']) ? $_GET['u'] : null;
+$teamname = isset($_GET['t']) ? $_GET['t'] : null;
 
 $command = $_GET['c'];
 
@@ -17,28 +17,28 @@ switch($command)
     $rv = $pomodoro->get_all_status();
     break;
   case "status":
-    $rv = $pomodoro->get_status($user_name);
+    $rv = $pomodoro->get_status($username);
     break;
   case "team_status":
-    $rv = $pomodoro->get_team_status($team_name);
+    $rv = $pomodoro->get_team_status($teamname);
     break;
   case "stop":
-    $rv = $pomodoro->stop_pomodoro($user_name);
+    $rv = $pomodoro->stop_pomodoro($username);
     break;
   case "team_stop":
-    $rv = $pomodoro->stop_team_pomodoro($team_name);
+    $rv = $pomodoro->stop_team_pomodoro($teamname);
     break;
   case "break":
-    $rv = $pomodoro->give_break($user_name);
+    $rv = $pomodoro->give_break($username);
     break;
   case "team_break":
-    $rv = $pomodoro->give_team_break($team_name);
+    $rv = $pomodoro->give_team_break($teamname);
     break;
   case "start":
-    $rv = $pomodoro->start_pomodoro($user_name);
+    $rv = $pomodoro->start_pomodoro($username);
     break;
   case "team_start":
-    $rv = $pomodoro->start_team_pomodoro($team_name);
+    $rv = $pomodoro->start_team_pomodoro($teamname);
     break;
 
 }
@@ -46,4 +46,3 @@ switch($command)
 $json = json_encode($rv);
 
 echo $json;
-

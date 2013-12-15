@@ -10,15 +10,15 @@ class UserDao extends Dao
   {
     $db = $this->get_connection();
 
-    $result = $db->query("CREATE TABLE user(user_name VARCHAR(255) PRIMARY KEY, status VARCHAR(10), begin INTEGER) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
+    $result = $db->query("CREATE TABLE user(username VARCHAR(255) PRIMARY KEY, status VARCHAR(10), begin INTEGER) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci");
     echo $result;
   }
   public function add($user)
   {
     $db = parent::get_connection();
-    if($stmt = $db->prepare("INSERT INTO user (user_name, status, begin) VALUES (?, ?, ?) "))
+    if($stmt = $db->prepare("INSERT INTO user (username, status, begin) VALUES (?, ?, ?) "))
     {
-      $stmt->bind_param('sss', $user->user_name, $user->status, $user->begin);
+      $stmt->bind_param('sss', $user->username, $user->status, $user->begin);
       $stmt->execute();
       $stmt->close();
     }
@@ -27,38 +27,38 @@ class UserDao extends Dao
   public function update($user)
   {
     $db = $this->get_connection();
-    if($stmt = $db->prepare("UPDATE user SET status = ?, begin = ? WHERE user_name = ?"))
+    if($stmt = $db->prepare("UPDATE user SET status = ?, begin = ? WHERE username = ?"))
     {
-      $stmt->bind_param('sss', $user->status, $user->begin, $user->user_name);
+      $stmt->bind_param('sss', $user->status, $user->begin, $user->username);
       $stmt->execute();
       $stmt->close();
     }
     return $user;
   }
-  public function delete($user_name)
+  public function delete($username)
   {
     $db = $this->get_connection();
-    if($stmt = $db->prepare("DELETE FROM user WHERE user_name = ?"))
+    if($stmt = $db->prepare("DELETE FROM user WHERE username = ?"))
     {
-      $stmt->bind_param('s', $user_name);
+      $stmt->bind_param('s', $username);
       $stmt->execute();
       $stmt->close();
     }
     return true;
   }
-  public function get($user_name)
+  public function get($username)
   {
     $user = null;
     $db = $this->get_connection();
-    if($stmt = $db->prepare("SELECT user_name, status, begin FROM user WHERE user_name = ?"))
+    if($stmt = $db->prepare("SELECT username, status, begin FROM user WHERE username = ?"))
     {
-      $stmt->bind_param('s', $user_name);
+      $stmt->bind_param('s', $username);
       $stmt->execute();
-      $stmt->bind_result($user_name, $status, $begin);
+      $stmt->bind_result($username, $status, $begin);
       if($stmt->fetch())
       {
         $user = new User();
-        $user->user_name = $user_name;
+        $user->username = $username;
         $user->status = $status;
         $user->begin = $begin;
       }
@@ -70,14 +70,14 @@ class UserDao extends Dao
   {
     $users = array();
     $db = $this->get_connection();
-    if($stmt = $db->prepare("SELECT user_name, status, begin FROM user ORDER BY user_name"))
+    if($stmt = $db->prepare("SELECT username, status, begin FROM user ORDER BY username"))
     {
       $stmt->execute();
-      $stmt->bind_result($user_name, $status, $begin);
+      $stmt->bind_result($username, $status, $begin);
       while($stmt->fetch())
       {
         $user = new User();
-        $user->user_name = $user_name;
+        $user->username = $username;
         $user->status = $status;
         $user->begin = $begin;
         $users[] = $user;
@@ -96,15 +96,15 @@ class UserDao extends Dao
 // $user_dao->create_table();
 
 // $user = new User();
-// $user->user_name = 'arif';
+// $user->username = 'arif';
 // $user_dao->add($user);
-// $user->user_name = 'sefa';
+// $user->username = 'sefa';
 // $user_dao->add($user);
-// $user->user_name = 'meltem';
+// $user->username = 'meltem';
 // $user_dao->add($user);
-// $user->user_name = 'nigar';
+// $user->username = 'nigar';
 // $user_dao->add($user);
-// $user->user_name = 'ömer';
+// $user->username = 'ömer';
 // $user_dao->add($user);
-// $user->user_name = 'ali';
+// $user->username = 'ali';
 // $user_dao->add($user);

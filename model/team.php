@@ -2,5 +2,5 @@
 
 class Team
 {
-  public $team_name;
+  public $teamname;
 }

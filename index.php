@@ -5,10 +5,10 @@
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
 <?php
 
-$user_name = isset($_GET['u']) ? $_GET['u'] : null;
-$team_name = isset($_GET['t']) ? $_GET['t'] : null;
+$username = isset($_GET['u']) ? $_GET['u'] : null;
+$teamname = isset($_GET['t']) ? $_GET['t'] : null;
 
-if((is_null($user_name) || $user_name === "") && (is_null($team_name) || $team_name === ""))
+if((is_null($username) || $username === "") && (is_null($teamname) || $teamname === ""))
 {
   die ('</head><body><p>Please enter your user name!!</p></body></html>');
 }
@@ -19,7 +19,7 @@ if((is_null($user_name) || $user_name === "") && (is_null($team_name) || $team_n
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <script type="text/javascript" src="js/jquery.countdown.pack.js"></script>
   <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
-  <script type="text/javascript">var user_name = "<?php echo $user_name;?>"; var team_name = "<?php echo $team_name;?>";</script>
+  <script type="text/javascript">var username = "<?php echo $username;?>"; var teamname = "<?php echo $teamname;?>";</script>
   <style type="text/css">
     #content {
       width : 400px;
@@ -56,11 +56,10 @@ if((is_null($user_name) || $user_name === "") && (is_null($team_name) || $team_n
     <div id="content">
       <div id="name">
         <?php
-          if(!is_null($team_name))
-          {
-             echo $team_name;
+          if(!is_null($teamname)){
+            echo $teamname;
           } else {
-            echo $user_name;
+            echo $username;
           }
         ?>
         <span></span>
@@ -68,7 +67,7 @@ if((is_null($user_name) || $user_name === "") && (is_null($team_name) || $team_n
       <div id="timer"></div>
       <div id="progress"></div>
       <div id="buttons">
-        <?php if(!is_null($team_name)) { ?>
+        <?php if(!is_null($teamname)) { ?>
           <button id="start" onclick="start_team(); return false">Start</button>
           <button id="stop" onclick="stop_team(); return false">Stop</button>
         <?php } else { ?>

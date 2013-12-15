@@ -21,14 +21,14 @@ class PomodoroService
     $this->team_dao = new TeamDao();
   }
 
-  function get_todays_record ($user_name)
+  function get_todays_record ($username)
   {
     $date = time();
-    $record = $this->record_dao->get($user_name, $date);
+    $record = $this->record_dao->get($username, $date);
     if(is_null($record))
     {
       $record = new Record();
-      $record->user_name = $user_name;
+      $record->username = $username;
       $record->date = $date;
       $record->success = 0;
       $record->fail = 0;
@@ -44,27 +44,28 @@ class PomodoroService
 
     foreach ($users as $user)
     {
-      $statuses[] = $this->get_status($user->user_name);
+      $statuses[] = $this->get_status($user->username);
     }
 
     return $statuses;
   }
 
-  function get_team_status($team_name)
+  function get_team_status($teamname)
   {
     $statuses = array();
-    $users = $this->team_dao->get_users($team_name);
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
 
     foreach ($users as $user)
     {
-      $statuses[] = $this->get_status($user->user_name);
+      $statuses[] = $this->get_status($user->username);
     }
 
     // $rv is the status of the team. It's actually the first status
     // that comes in the $statuses array. This object (except the pomodoro count
-    // and user_name fields) is the same for all users in a team, because they
+    // and username fields) is the same for all users in a team, because they
     // all have pomodoros that were initiated with a *team_start* call.
-    // For this reason, the following changes the user_name of $rv to *team* and pomodoro_today
+    // For this reason, the following changes the username of $rv to *team* and pomodoro_today
     // to -1.
 
     // This part needs further thought and development. With the following lines, we only
@@ -72,7 +73,7 @@ class PomodoroService
 
     // hack start
     $rv = $statuses[0];
-    $rv->user_name = 'team';
+    $rv->username = 'team';
     $rv->pomodoro_today = -1;
     // hack end
 
@@ -87,18 +88,18 @@ class PomodoroService
     return $rv; 
   }
 
-  function get_status ($user_name)
+  function get_status ($username)
   {
     global $POMODORO_LENGTH, $SHORT_BREAK_LENGTH, $LONG_BREAK_LENGTH;
 
     $status = null;
 
-    $user = $this->user_dao->get($user_name);
+    $user = $this->user_dao->get($username);
 
     if(is_null($user))
     {
       $user = new User();
-      $user->user_name = $user_name;
+      $user->username = $username;
       $user->status = "IDLE";
       $user->begin = time();
       $user = $this->user_dao->add($user);
@@ -109,7 +110,7 @@ class PomodoroService
       $diff = time() - $user->begin - $SHORT_BREAK_LENGTH;
       if($diff >= 0)
       {
-        $status = $this->stop_pomodoro($user_name);
+        $status = $this->stop_pomodoro($username);
       }
     }
 
@@ -118,17 +119,17 @@ class PomodoroService
       $diff = time() - $user->begin - $LONG_BREAK_LENGTH;
       if($diff >= 0)
       {
-        $status = $this->stop_pomodoro($user_name);
+        $status = $this->stop_pomodoro($username);
       }
     }
 
     if(is_null($status))
     {
       $status = new Status();
-      $status->user_name = $user->user_name;
+      $status->username = $user->username;
       $status->status = $user->status;
       $status->begin = $user->begin;
-      $status->pomodoro_today = $this->get_pomodoro_count_for_today($user_name);
+      $status->pomodoro_today = $this->get_pomodoro_count_for_today($username);
       switch($user->status)
       {
         case "POMODORO":
@@ -146,81 +147,65 @@ class PomodoroService
     return $status;
   }
 
-  function get_pomodoro_count_for_today ($user_name)
+  function get_pomodoro_count_for_today ($username)
   {
-    $record = $this->get_todays_record($user_name);
+    $record = $this->get_todays_record($username);
     return $record->success;
   }
 
-  function stop_pomodoro ($user_name)
+  function stop_pomodoro ($username)
   {
     $status = null;
-    $user = $this->user_dao->get($user_name);
+    $user = $this->user_dao->get($username);
     if(!is_null($user))
     {
       if($user->status === "POMODORO" || $user->status === "S_BREAK" || $user->status === "L_BREAK")
       {
          if($user->status === "POMODORO")
          {
-           $this->fail($user->user_name);
+           $this->fail($user->username);
          }
          $user->status = "IDLE";
          $user->begin = time();
          $this->user_dao->update($user);
       }
-      $status = $this->get_status($user->user_name);
+      $status = $this->get_status($user->username);
     }
     else
     {
       $status = new Status();
       $status->error = true;
-      $status->error_message = "There is no such user named : ".$user_name;
+      $status->error_message = "There is no such user named : ".$username;
     }
     return $status;
   }
 
-  function stop_team_pomodoro ($team_name)
+  function stop_team_pomodoro ($teamname)
   {
     $status = null;
-    $users = $this->team_dao->get_users($team_name);
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
 
     $status = new Status();
     $status->error = false;
 
     foreach ($users as $user) {
-      if(!is_null($user))
-      {
-        if($user->status === "POMODORO" || $user->status === "S_BREAK" || $user->status === "L_BREAK")
-        {
-           if($user->status === "POMODORO")
-           {
-             $this->fail($user->user_name);
-           }
-           $user->status = "IDLE";
-           $user->begin = time();
-           $this->user_dao->update($user);
-        }
-      }
-      else
-      {
-        $status = new Status();
-        $status->error = true;
-        $status->error_message = "There is no such user named : ".$user_name;
+      $status = $this->stop_pomodoro($user->username);
+      if($status->error)
         break;
-      }
     }
     if(!$status->error)
     {
-      $status = $this->get_team_status($team_name);
+      $status = $this->get_team_status($teamname);
     }
     return $status;
   }
 
-  function give_break ($user_name)
+  function give_break ($username)
   {
     global $POMODORO_LENGTH;
     $status = null;
-    $user = $this->user_dao->get($user_name);
+    $user = $this->user_dao->get($username);
     if(!is_null($user))
     {
       if($user->status === "POMODORO")
@@ -228,7 +213,7 @@ class PomodoroService
          $diff = time() - $user->begin;
          if($diff >= $POMODORO_LENGTH)
          {
-           $success_count = $this->success($user->user_name);
+           $success_count = $this->success($user->username);
 
            if($success_count % 4 === 0)
            {
@@ -241,96 +226,59 @@ class PomodoroService
 
            $user->begin = time();
            $this->user_dao->update($user);
-           $status = $this->get_status($user->user_name);
+           $status = $this->get_status($user->username);
          }
          else
          {
            $status = new Status();
            $status->error = true;
-           $status->error_message = "User's POMODORO not finished yet. Use stop instead. : ".$user_name;
+           $status->error_message = "User's POMODORO not finished yet. Use stop instead. : ".$username;
          }
       }
       else
       {
          $status = new Status();
          $status->error = true;
-         $status->error_message = "User is not in POMODORO : ".$user_name;
+         $status->error_message = "User is not in POMODORO : ".$username;
       }
     }
     else
     {
        $status = new Status();
        $status->error = true;
-       $status->error_message = "There is no such user named : ".$user_name;
+       $status->error_message = "There is no such user named : ".$username;
     }
     return $status;
   }
 
-  function give_team_break ($team_name)
+  function give_team_break ($teamname)
   {
     global $POMODORO_LENGTH;
     $status = null;
-    $users = $this->team_dao->get_users($team_name);
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
     
     $status = new Status();
     $status->error = false;
 
     foreach ($users as $user) {
-      if(!is_null($user))
-      {
-        if($user->status === "POMODORO")
-        {
-           $diff = time() - $user->begin;
-           if($diff >= $POMODORO_LENGTH)
-           {
-             $success_count = $this->success($user->user_name);
-
-             if($success_count % 4 === 0)
-             {
-               $user->status = "L_BREAK";
-             }
-             else
-             {
-               $user->status = "S_BREAK";
-             }
-
-             $user->begin = time();
-             $this->user_dao->update($user);
-           }
-           else
-           {
-             $status = new Status();
-             $status->error = true;
-             $status->error_message = "User's POMODORO not finished yet. Use stop instead. : ".$user_name;
-           }
-        }
-        else
-        {
-           $status = new Status();
-           $status->error = true;
-           $status->error_message = "User is not in POMODORO : ".$user_name;
-        }
-      }
-      else
-      {
-         $status = new Status();
-         $status->error = true;
-         $status->error_message = "There is no such user named : ".$user_name;
-      }
+      $status = $this->give_break($user->username);
+      if($status->error)
+        break;
     }
     
     if(!$status->error)
     {
-      $status = $this->get_team_status($team_name);
+      $status = $this->get_team_status($teamname);
     }
     return $status;
   }
 
-  function start_pomodoro ($user_name)
+  function start_pomodoro ($username)
   {
     global $POMODORO_LENGTH;
     $status = null;
-    $user = $this->user_dao->get($user_name);
+    $user = $this->user_dao->get($username);
     if(!is_null($user))
     {
       if($user->status === "POMODORO")
@@ -338,75 +286,58 @@ class PomodoroService
         $diff = time() - $user->begin;
         if($diff >= $POMODORO_LENGTH)
         {
-           $this->success($user->user_name);
+           $this->success($user->username);
         }
       }
       $user->status = "POMODORO";
       $user->begin = time();
       $this->user_dao->update($user);
 
-      $status = $this->get_status($user->user_name);
+      $status = $this->get_status($user->username);
     }
     else
     {
        $status = new Status();
        $status->error = true;
-       $status->error_message = "There is no such user named : ".$user_name;
+       $status->error_message = "There is no such user named : ".$username;
     }
     return $status;
   }
 
-  function start_team_pomodoro ($team_name)
+  function start_team_pomodoro ($teamname)
   {
     global $POMODORO_LENGTH;
     $status = null;
-    $users = $this->team_dao->get_users($team_name);
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
 
     $status = new Status();
     $status->error = false;
 
     foreach ($users as $user) {
-
-      if(!is_null($user))
-      {
-        if($user->status === "POMODORO")
-        {
-          $diff = time() - $user->begin;
-          if($diff >= $POMODORO_LENGTH)
-          {
-             $this->success($user->user_name);
-          }
-        }
-        $user->status = "POMODORO";
-        $user->begin = time();
-        $this->user_dao->update($user);
-      }
-      else
-      {
-         $status = new Status();
-         $status->error = true;
-         $status->error_message = "There is no such user named : ".$user_name;
-      }
+      $status = $this->start_pomodoro($user->username);
+      if($status->error)
+        break;
     }
 
     if(!$status->error)
     {
-      $status = $this->get_team_status($team_name);
+      $status = $this->get_team_status($teamname);
     }
     return $status;
   }
 
-  function success ($user_name)
+  function success ($username)
   {
-    $record = $this->get_todays_record($user_name);
+    $record = $this->get_todays_record($username);
     $record->success += 1;
     $this->record_dao->update($record);
     return $record->success;
   }
 
-  function fail ($user_name)
+  function fail ($username)
   {
-    $record = $this->get_todays_record($user_name);
+    $record = $this->get_todays_record($username);
     $record->fail += 1;
     $this->record_dao->update($record);
     return $record->fail;
