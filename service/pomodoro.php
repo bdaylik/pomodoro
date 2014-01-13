@@ -3,6 +3,7 @@
 require_once dirname(__FILE__)."/../config.php";
 require_once dirname(__FILE__)."/../dao/userdao.php";
 require_once dirname(__FILE__)."/../dao/recorddao.php";
+require_once dirname(__FILE__)."/../dao/teamdao.php";
 require_once dirname(__FILE__)."/../model/user.php";
 require_once dirname(__FILE__)."/../model/record.php";
 require_once dirname(__FILE__)."/../model/status.php";
@@ -11,11 +12,13 @@ class PomodoroService
 {
   private $user_dao = null;
   private $record_dao = null;
+  private $team_dao = null;
 
   function __construct()
   {
     $this->user_dao = new UserDao();
     $this->record_dao = new RecordDao();
+    $this->team_dao = new TeamDao();
   }
 
   function get_todays_record ($username)
@@ -45,6 +48,44 @@ class PomodoroService
     }
 
     return $statuses;
+  }
+
+  function get_team_status($teamname)
+  {
+    $statuses = array();
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
+
+    foreach ($users as $user)
+    {
+      $statuses[] = $this->get_status($user->username);
+    }
+
+    // $rv is the status of the team. It's actually the first status
+    // that comes in the $statuses array. This object (except the pomodoro count
+    // and username fields) is the same for all users in a team, because they
+    // all have pomodoros that were initiated with a *team_start* call.
+    // For this reason, the following changes the username of $rv to *team* and pomodoro_today
+    // to -1.
+
+    // This part needs further thought and development. With the following lines, we only
+    // have a hack to make team implementations compatible with the old pomodoro app.
+
+    // hack start
+    $rv = $statuses[0];
+    $rv->username = 'team';
+    $rv->pomodoro_today = -1;
+    // hack end
+
+    foreach ($statuses as $status) {
+      if($status->error)
+      {
+        $rv = $status;
+        break;
+      }
+    }
+
+    return $rv; 
   }
 
   function get_status ($username)
@@ -138,6 +179,27 @@ class PomodoroService
     return $status;
   }
 
+  function stop_team_pomodoro ($teamname)
+  {
+    $status = null;
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
+
+    $status = new Status();
+    $status->error = false;
+
+    foreach ($users as $user) {
+      $status = $this->stop_pomodoro($user->username);
+      if($status->error)
+        break;
+    }
+    if(!$status->error)
+    {
+      $status = $this->get_team_status($teamname);
+    }
+    return $status;
+  }
+
   function give_break ($username)
   {
     global $POMODORO_LENGTH;
@@ -188,6 +250,29 @@ class PomodoroService
     return $status;
   }
 
+  function give_team_break ($teamname)
+  {
+    global $POMODORO_LENGTH;
+    $status = null;
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
+    
+    $status = new Status();
+    $status->error = false;
+
+    foreach ($users as $user) {
+      $status = $this->give_break($user->username);
+      if($status->error)
+        break;
+    }
+    
+    if(!$status->error)
+    {
+      $status = $this->get_team_status($teamname);
+    }
+    return $status;
+  }
+
   function start_pomodoro ($username)
   {
     global $POMODORO_LENGTH;
@@ -214,6 +299,29 @@ class PomodoroService
        $status = new Status();
        $status->error = true;
        $status->error_message = "There is no such user named : ".$username;
+    }
+    return $status;
+  }
+
+  function start_team_pomodoro ($teamname)
+  {
+    global $POMODORO_LENGTH;
+    $status = null;
+    $team = $this->team_dao->get($teamname);
+    $users = $this->team_dao->get_users($team);
+
+    $status = new Status();
+    $status->error = false;
+
+    foreach ($users as $user) {
+      $status = $this->start_pomodoro($user->username);
+      if($status->error)
+        break;
+    }
+
+    if(!$status->error)
+    {
+      $status = $this->get_team_status($teamname);
     }
     return $status;
   }

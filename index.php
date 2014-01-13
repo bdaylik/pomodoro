@@ -6,8 +6,9 @@
 <?php
 
 $username = isset($_GET['u']) ? $_GET['u'] : null;
+$teamname = isset($_GET['t']) ? $_GET['t'] : null;
 
-if(is_null($username) || $username === "")
+if((is_null($username) || $username === "") && (is_null($teamname) || $teamname === ""))
 {
   die ('</head><body><p>Please enter your user name!!</p></body></html>');
 }
@@ -18,7 +19,7 @@ if(is_null($username) || $username === "")
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
   <script type="text/javascript" src="js/jquery.countdown.pack.js"></script>
   <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
-  <script type="text/javascript">var username = "<?php echo $username;?>";</script>
+  <script type="text/javascript">var username = "<?php echo $username;?>"; var teamname = "<?php echo $teamname;?>";</script>
   <style type="text/css">
     #content {
       width : 400px;
@@ -53,12 +54,26 @@ if(is_null($username) || $username === "")
 <body>
   <div id="main">
     <div id="content">
-      <div id="name"><?php echo $username;?> <span></span></div>
+      <div id="name">
+        <?php
+          if(!is_null($teamname)){
+            echo $teamname;
+          } else {
+            echo $username;
+          }
+        ?>
+        <span></span>
+      </div>
       <div id="timer"></div>
       <div id="progress"></div>
       <div id="buttons">
-        <button id="start" onclick="start(); return false">Start</button>
-        <button id="stop" onclick="stop(); return false">Stop</button>
+        <?php if(!is_null($teamname)) { ?>
+          <button id="start" onclick="start_team(); return false">Start</button>
+          <button id="stop" onclick="stop_team(); return false">Stop</button>
+        <?php } else { ?>
+          <button id="start" onclick="start(); return false">Start</button>
+          <button id="stop" onclick="stop(); return false">Stop</button>
+        <?php } ?>
       </div>
     </div>
   </div>

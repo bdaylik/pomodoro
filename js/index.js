@@ -105,10 +105,18 @@ function refresh(data) {
 
 function status() {
     "use strict";
-    $.getJSON('api.php', {
-        u: username,
-        c: "status"
-    }, refresh);
+    if(username.length){
+        $.getJSON('api.php', {
+            u: username,
+            c: "status"
+        }, refresh);
+    } else {
+        $.getJSON('api.php', {
+            t: teamname,
+            c: "team_status"
+        }, refresh);
+    }
+    
 }
 
 function start() {
@@ -116,6 +124,14 @@ function start() {
     $.getJSON('api.php', {
         u: username,
         c: "start"
+    }, refresh);
+}
+
+function start_team() {
+    "use strict";
+    $.getJSON('api.php', {
+        t: teamname,
+        c: "team_start"
     }, refresh);
 }
 
@@ -127,11 +143,27 @@ function stop() {
     }, refresh);
 }
 
+function stop_team() {
+    "use strict";
+    $.getJSON('api.php', {
+        t: teamname,
+        c: "team_stop"
+    }, refresh);
+}
+
 function give_break() {
     "use strict";
     $.getJSON('api.php', {
         u: username,
         c: "break"
+    }, refresh);
+}
+
+function give_team_break() {
+    "use strict";
+    $.getJSON('api.php', {
+        t: teamname,
+        c: "team_break"
     }, refresh);
 }
 
@@ -148,13 +180,22 @@ function dialog() {
         close: function () {
             switch (dialog_rv) {
             case "TAKE_A_BREAK":
-                give_break();
+                if(username.length)
+                    give_break();
+                else
+                    give_team_break();
                 break;
             case "SKIP_BREAK":
-                start();
+                if(username.length)
+                    start();
+                else
+                    start_team();
                 break;
             case "VOID":
-                stop();
+                if(username.length)
+                    stop();
+                else
+                    stop_team();
                 break;
             }
         },
