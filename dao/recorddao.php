@@ -100,6 +100,3 @@ class RecordDao extends Dao
     parent::__destruct();
   }
 }
-
- // $record_dao = new RecordDao();
- // $record_dao->create_table();

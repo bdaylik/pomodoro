@@ -91,20 +91,3 @@ class UserDao extends Dao
     parent::__destruct();
   }
 }
-
-// $user_dao = new UserDao();
-// $user_dao->create_table();
-
-// $user = new User();
-// $user->username = 'arif';
-// $user_dao->add($user);
-// $user->username = 'sefa';
-// $user_dao->add($user);
-// $user->username = 'meltem';
-// $user_dao->add($user);
-// $user->username = 'nigar';
-// $user_dao->add($user);
-// $user->username = 'ömer';
-// $user_dao->add($user);
-// $user->username = 'ali';
-// $user_dao->add($user);
