@@ -1,6 +1,6 @@
 <?php
 
-class Status
+class UserStatus
 {
   public $username;
   public $status;

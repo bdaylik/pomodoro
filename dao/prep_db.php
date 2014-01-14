@@ -70,4 +70,4 @@
 /* $team_dao->add_users_to_team($team, $users); */
 
 /* // gets all users for a team: */
-/* // $team_dao->get_users($team); */
+/* // $team_dao->get_users($team->teamname); */

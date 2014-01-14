@@ -58,13 +58,13 @@ class TeamDao extends Dao
     return $team;
   }
   
-  public function get_users($team)
+  public function get_users($teamname)
   {
     $users = array();
     $db = $this->get_connection();
     if($stmt = $db->prepare("SELECT user.username, user.status, user.begin FROM user INNER JOIN user_team on user.username=user_team.username WHERE user_team.teamname = ?"))
     {
-      $stmt->bind_param('s', $team->teamname);
+      $stmt->bind_param('s', $teamname);
       $stmt->execute();
       $stmt->bind_result($username, $status, $begin);
       while($stmt->fetch())
